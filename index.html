@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>デカブサ大戦 ver13.0</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#050505;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+[hidden]{display:none!important}
+:root{--maxw:560px;--line:rgba(255,255,255,.14);--muted:rgba(255,255,255,.68)}
+.app{max-width:var(--maxw);margin:0 auto;padding:10px 10px 28px}
+.screen{min-height:100svh;display:flex;flex-direction:column}
+.panel{background:linear-gradient(180deg,#171717,#0f0f0f);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px}
+.title{font-size:34px;font-weight:900;text-align:center;margin-top:28px}
+.sub{text-align:center;color:var(--muted);margin:8px 0 18px}
+.btn,.btn2,.small{border:0;border-radius:14px;font-weight:900}
+.btn{width:100%;padding:16px;font-size:18px;background:#fff;color:#000}
+.btn2{width:100%;padding:14px;background:#222;color:#fff;border:1px solid var(--line)}
+.small{padding:10px 12px;background:#333;color:#fff;border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chi{background:#101010;border:1px solid var(--line);border-radius:16px;padding:8px;text-align:center}
+.chi.active{outline:2px solid #fff}
+.chi img{height:88px;width:100%;object-fit:contain}
+.chi div{font-size:12px;font-weight:900}
+.top{display:flex;justify-content:space-between;align-items:center;margin:8px 0 10px}
+.pick{display:flex;flex-direction:column;gap:10px}
+.card{display:grid;grid-template-columns:92px 1fr;gap:10px;background:#101010;border:1px solid var(--line);border-radius:16px;padding:10px}
+.card.sel{outline:2px solid #fff}
+.card img{width:92px;height:112px;object-fit:contain;background:#0b0b0b;border-radius:12px}
+.name{font-size:17px;font-weight:900}
+.meta{font-size:12px;color:#ddd;margin-top:4px;line-height:1.45}
+.pill{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:900;margin-left:6px;border:1px solid var(--line)}
+.normal{background:rgba(255,255,255,.13)}
+.fire{background:rgba(255,90,90,.18)}
+.water{background:rgba(90,165,255,.18)}
+.wind{background:rgba(120,230,145,.18)}
+.light{background:rgba(255,225,90,.18)}
+.dark{background:rgba(170,110,255,.18)}
+.teamSlot{display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;background:#151515;border:1px solid var(--line);border-radius:14px;padding:9px;margin-top:8px}
+.teamSlot img{width:46px;height:46px;object-fit:contain;background:#090909;border-radius:10px}
+.orders{font-size:11px;color:var(--muted)}
+.status{font-size:12px;color:#ddd}
+.intro{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:20;display:flex;align-items:center;justify-content:center;padding:18px}
+.introBox{width:min(94vw,520px);background:linear-gradient(180deg,#1b1b1b,#0d0d0d);border:1px solid var(--line);border-radius:24px;padding:18px;text-align:center}
+.introImg{max-height:55svh;max-width:100%;object-fit:contain;filter:drop-shadow(0 18px 34px rgba(0,0,0,.55))}
+.introText{font-size:18px;font-weight:900;line-height:1.7;margin:12px 0}
+.battleMeta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.metaPill{font-size:11px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:#111}
+.vsArea{display:grid;grid-template-columns:1fr 44px 1fr;gap:8px;align-items:stretch}
+.fighter{min-height:260px;border:1px solid var(--line);border-radius:18px;padding:12px;background:#111;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.fighter.enemy{text-align:right}
+.fighterImg{height:136px;width:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.45))}
+.player .fighterImg{transform:scaleX(-1)}
+.vs{display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
+.hpBar{height:12px;border-radius:999px;background:#333;overflow:hidden}
+.hpFill{height:100%;background:#79e09a;width:100%;transition:.25s}
+.hpFill.mid{background:#ffd65e}.hpFill.low{background:#ff7777}
+.ticker{margin:10px 0;padding:14px;border:1px solid var(--line);border-radius:14px;background:#111;min-height:62px;font-size:18px;font-weight:900;text-align:center;display:flex;align-items:center;justify-content:center;white-space:pre-line}
+.result{text-align:center;font-size:30px;font-weight:900;margin-top:10px}
+.tint-normal{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45)) saturate(1)}
+.tint-fire{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45)) sepia(.35) saturate(1.6) hue-rotate(-25deg)}
+.tint-water{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45)) sepia(.2) saturate(1.45) hue-rotate(170deg)}
+.tint-wind{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45)) sepia(.25) saturate(1.45) hue-rotate(70deg)}
+.tint-light{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45)) brightness(1.18) saturate(1.15)}
+.tint-dark{filter:drop-shadow(0 10px 20px rgba(0,0,0,.45)) sepia(.25) saturate(1.55) hue-rotate(245deg) brightness(.82)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<section id="titleScreen" class="screen">
+  <div class="title">デカブサ大戦</div>
+  <div class="sub">ver13.0 / 18体・6属性対応</div>
+  <div class="panel">
+    <div style="font-weight:900;margin-bottom:10px">チー娘を選ぶ</div>
+    <div id="chiGrid" class="grid"></div>
+  </div>
+  <button class="btn" onclick="goBuild()">START</button>
+</section>
+
+<section id="buildScreen" class="screen" hidden>
+  <div class="top">
+    <button class="small" onclick="goTitle()">戻る</button>
+    <div style="text-align:right;font-weight:900">5体選んで並べる</div>
+  </div>
+  <div class="panel">
+    <div id="selectedChiName" style="font-size:18px;font-weight:900"></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
+      <img id="selectedChiImg" src="" style="width:82px;height:82px;object-fit:contain">
+      <div id="selectedChiLine" style="line-height:1.7;color:#ddd"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div style="font-weight:900;margin-bottom:10px">候補デカブサ</div>
+    <div id="pickList" class="pick"></div>
+  </div>
+  <div class="panel">
+    <div style="font-weight:900">現在の並び</div>
+    <div id="teamList"></div>
+    <button id="startBtn" class="btn" style="margin-top:12px" onclick="startBattle()" disabled>この並びでいく</button>
+    <button class="btn2" style="margin-top:8px" onclick="randomTeam()">ランダム</button>
+    <button class="btn2" style="margin-top:8px" onclick="team=[];renderBuild()">全て外す</button>
+  </div>
+</section>
+
+<section id="battleScreen" class="screen" hidden>
+  <div class="top">
+    <button class="small" onclick="goBuild()">編成へ</button>
+    <div style="text-align:right;font-weight:900">オート対戦</div>
+  </div>
+  <div class="battleMeta">
+    <div class="metaPill" id="roundText">MATCH 0</div>
+    <div class="metaPill" id="aliveText">残り - / -</div>
+  </div>
+  <div class="vsArea">
+    <div id="pCard" class="fighter player">
+      <div><div id="pName" class="name"></div><div id="pMeta" class="meta"></div></div>
+      <img id="pImg" class="fighterImg">
+      <div><div class="status" id="pHpText"></div><div class="hpBar"><div id="pHp" class="hpFill"></div></div></div>
+    </div>
+    <div class="vs">VS</div>
+    <div id="eCard" class="fighter enemy">
+      <div><div id="eName" class="name"></div><div id="eMeta" class="meta"></div></div>
+      <img id="eImg" class="fighterImg">
+      <div><div class="status" id="eHpText"></div><div class="hpBar"><div id="eHp" class="hpFill"></div></div></div>
+    </div>
+  </div>
+  <div id="ticker" class="ticker">対戦開始。</div>
+  <div id="resultBox" hidden>
+    <div id="resultTitle" class="result"></div>
+    <div id="resultSub" style="text-align:center;color:#ddd;margin-top:6px"></div>
+    <button class="btn" style="margin-top:14px" onclick="startBattle()">もう一度</button>
+    <button class="btn2" style="margin-top:8px" onclick="goBuild()">編成に戻る</button>
+  </div>
+</section>
+
+<div id="intro" class="intro" hidden>
+  <div class="introBox">
+    <img id="introImg" class="introImg">
+    <div id="introText" class="introText"></div>
+    <button class="btn" onclick="hideIntro()">対戦開始</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const ATTR={
+ normal:"ノーマル", fire:"火", water:"水", wind:"風", light:"光", dark:"闇"
+};
+
+const strong={
+ normal:["light","dark"],
+ fire:["normal","wind"],
+ water:["fire","normal"],
+ wind:["water","light"],
+ light:["water","dark"],
+ dark:["fire","light"]
+};
+
+const chiGirls=[
+{id:"hinata",name:"ヒナタ",attr:"fire",img:"./chi_hinata_bust.png",stand:"./chi_hinata_pair.png",line:"いくよ！その並び、悪くないね。"},
+{id:"akari",name:"アカリ",attr:"fire",img:"./chi_akari_bust.png",stand:"./chi_akari_pair.png",line:"それで来るんだ？まあ、いいけど。"},
+{id:"kaede",name:"カエデ",attr:"fire",img:"./chi_kaede_bust.png",stand:"./chi_kaede_pair.png",line:"全力でいこう！"},
+
+{id:"mizuki",name:"ミズキ",attr:"water",img:"./chi_mizuki_bust.png",stand:"./chi_mizuki_pair.png",line:"落ち着いていこう。大丈夫だよ。"},
+{id:"aoi",name:"アオイ",attr:"water",img:"./chi_aoi_bust.png",stand:"./chi_aoi_pair.png",line:"焦らなくていいよ。ちゃんと見えてる。"},
+{id:"yui",name:"ユイ",attr:"water",img:"./chi_yui_bust.png",stand:"./chi_yui_pair.png",line:"なんかよさそう〜。がんばろ〜。"},
+
+{id:"kazaha",name:"カザハ",attr:"wind",img:"./chi_kazaha_bust.png",stand:"./chi_kazaha_pair.png",line:"速さでいくよ。ついてこれる？"},
+{id:"haru",name:"ハル",attr:"wind",img:"./chi_haru_bust.png",stand:"./chi_haru_pair.png",line:"いくぞ！負けない！"},
+{id:"midori",name:"ミドリ",attr:"wind",img:"./chi_midori_bust.png",stand:"./chi_midori_pair.png",line:"準備はいい？悪くない判断。"},
+
+{id:"hikari",name:"ヒカリ",attr:"light",img:"./chi_hikari_bust.png",stand:"./chi_hikari_pair.png",line:"明るくいこう。きっと大丈夫。"},
+{id:"luna",name:"ルナ",attr:"light",img:"./chi_luna_bust.png",stand:"./chi_luna_pair.png",line:"いい流れを作ろう。"},
+{id:"sera",name:"セラ",attr:"light",img:"./chi_sera_bust.png",stand:"./chi_sera_pair.png",line:"守りながら勝とうね。"},
+
+{id:"yuura",name:"ユウラ",attr:"dark",img:"./chi_yuura_bust.png",stand:"./chi_yuura_pair.png",line:"その並び……面白いね。"},
+{id:"chloe",name:"クロエ",attr:"dark",img:"./chi_chloe_bust.png",stand:"./chi_chloe_pair.png",line:"崩れるよ。見えてる。"},
+{id:"lili",name:"リリ",attr:"dark",img:"./chi_lili_bust.png",stand:"./chi_lili_pair.png",line:"結果は、少しだけ見えてる。"},
+
+{id:"nana",name:"ナナ",attr:"normal",img:"./chi_nana_bust.png",stand:"./chi_nana_pair.png",line:"普通にいこう。普通が一番強い時もあるよ。"},
+{id:"ema",name:"エマ",attr:"normal",img:"./chi_ema_bust.png",stand:"./chi_ema_pair.png",line:"いい感じ。無理しなくていいよ。"},
+{id:"coco",name:"ココ",attr:"normal",img:"./chi_coco_bust.png",stand:"./chi_coco_pair.png",line:"この並びでいってみよ。"}
+];
+
+const chars=[
+{id:"dekabusa",name:"デカブサ",attr:"water",role:"安定",hp:130,atk:25,def:22,spd:8,img:"./dekabusa.png",line:"まあ、こんな日もある。"},
+{id:"kabao",name:"カバオ",attr:"water",role:"耐久",hp:145,atk:26,def:28,spd:10,img:"./kabao.png",line:"まだ立ってるぞ。"},
+{id:"nise",name:"ニセブサ",attr:"normal",role:"バランス",hp:120,atk:28,def:20,spd:12,img:"./nise.png",line:"似てるだけじゃない。"},
+
+{id:"juzo",name:"ジュウゾウ",attr:"water",role:"反撃",hp:110,atk:30,def:18,spd:14,img:"./juzo.png",line:"読めてた。"},
+{id:"ratel",name:"ラテロウ",attr:"fire",role:"先手",hp:95,atk:34,def:14,spd:20,img:"./rate.png",line:"速かっただろ。"},
+{id:"kanemon",name:"カンえもん",attr:"fire",role:"初撃",hp:100,atk:36,def:15,spd:16,img:"./kan.png",line:"初手で決めた。"},
+
+{id:"namaken",name:"ナマケン",attr:"dark",role:"奇襲",hp:105,atk:32,def:16,spd:18,img:"./namaken.png",line:"やる時はやる。"},
+{id:"panpan",name:"パンパン",attr:"light",role:"ロマン",hp:100,atk:38,def:12,spd:14,img:"./panpan.png",line:"暴れ足りないな。"},
+{id:"ani",name:"デカブサ兄",attr:"fire",role:"連勝",hp:115,atk:33,def:18,spd:15,img:"./ani.png",line:"当然だな。"},
+
+{id:"tora",name:"トラさん",attr:"wind",role:"分身",hp:105,atk:31,def:17,spd:17,img:"./tora.png",line:"分身しただけだ。"},
+{id:"gori",name:"ゴリさん",attr:"normal",role:"防御",hp:120,atk:27,def:24,spd:9,img:"./gori.png",line:"ふんばった。"},
+{id:"king",name:"キング",attr:"light",role:"終盤",hp:110,atk:36,def:16,spd:13,img:"./king.png",line:"仕留めた。"},
+
+{id:"hera",name:"ヘラジ",attr:"wind",role:"妨害",hp:130,atk:27,def:25,spd:9,img:"./hera.png",line:"角があるからな。"},
+{id:"ushi",name:"ウシくん",attr:"normal",role:"安定火力",hp:125,atk:29,def:22,spd:10,img:"./ushi.png",line:"モー勝った。"},
+{id:"boo",name:"ブーちゃん",attr:"normal",role:"高HP",hp:150,atk:24,def:24,spd:7,img:"./boo.png",line:"まだ食える。"},
+
+{id:"shikao",name:"シカオ",attr:"light",role:"回避速度",hp:105,atk:28,def:17,spd:19,img:"./shikao.png",line:"見えてた。"},
+{id:"wulvy",name:"ウルヴィー",attr:"dark",role:"連撃",hp:110,atk:34,def:16,spd:17,img:"./wulvy.png",line:"爪があるから。"},
+{id:"fuchan",name:"フーちゃん",attr:"wind",role:"支援",hp:120,atk:25,def:26,spd:12,img:"./fuchan.png",line:"ふわっと勝った。"}
+];
+
+let selectedChi=localStorage.getItem("selectedChi")||"hinata";
+let team=[];
+let battle=null;
+let introResolve=null;
+
+function $(id){return document.getElementById(id)}
+function chi(){return chiGirls.find(x=>x.id===selectedChi)||chiGirls[0]}
+function ch(id){return chars.find(x=>x.id===id)}
+function attrName(a){return ATTR[a]||a}
+function attrClass(a){return a}
+function show(id){["titleScreen","buildScreen","battleScreen"].forEach(s=>$(s).hidden=s!==id)}
+function imgFallback(el){el.onerror=()=>{el.style.opacity=.15}}
+
+function renderChi(){
+ const g=$("chiGrid"); g.innerHTML="";
+ chiGirls.forEach(c=>{
+  const d=document.createElement("div");
+  d.className="chi "+(c.id===selectedChi?"active":"");
+  d.innerHTML=`<img src="${c.img}"><div>${c.name}</div><div class="pill ${c.attr}">${attrName(c.attr)}</div>`;
+  d.onclick=()=>{selectedChi=c.id;localStorage.setItem("selectedChi",c.id);renderChi();renderBuild()};
+  g.appendChild(d); imgFallback(d.querySelector("img"));
+ });
+}
+
+function renderBuild(){
+ const c=chi();
+ $("selectedChiName").textContent=`${c.name}　${attrName(c.attr)}`;
+ $("selectedChiImg").src=c.img; imgFallback($("selectedChiImg"));
+ $("selectedChiLine").textContent=`${c.name}「${c.line}」`;
+
+ const p=$("pickList"); p.innerHTML="";
+ chars.forEach(x=>{
+  const selected=team.includes(x.id);
+  const d=document.createElement("div");
+  d.className="card "+(selected?"sel":"");
+  d.innerHTML=`
+   <img src="${x.img}">
+   <div>
+    <div class="name">${x.name}<span class="pill ${x.attr}">${attrName(x.attr)}</span></div>
+    <div class="meta">${x.role}<br>HP ${x.hp}　攻 ${x.atk}　防 ${x.def}　速 ${x.spd}</div>
+    <button class="small" style="margin-top:8px" onclick="${selected?`removeTeam('${x.id}')`:`addTeam('${x.id}')`}">${selected?"外す":"選ぶ"}</button>
+   </div>`;
+  p.appendChild(d); imgFallback(d.querySelector("img"));
+ });
+ renderTeam();
+}
+
+function renderTeam(){
+ const o=["先鋒","次鋒","中堅","副将","大将"];
+ const t=$("teamList"); t.innerHTML="";
+ for(let i=0;i<5;i++){
+  const id=team[i], x=id?ch(id):null;
+  const d=document.createElement("div"); d.className="teamSlot";
+  d.innerHTML=x?`
+   <img src="${x.img}">
+   <div><div class="orders">${o[i]}</div><div class="name">${x.name}</div><div class="status">${attrName(x.attr)} / ${x.role}</div></div>
+   <div><button class="small" onclick="up(${i})">▲</button><button class="small" onclick="down(${i})">▼</button></div>`
+  :`<div></div><div><div class="orders">${o[i]}</div><div class="name" style="opacity:.4">未選択</div></div><div></div>`;
+  t.appendChild(d); if(x)imgFallback(d.querySelector("img"));
+ }
+ $("startBtn").disabled=team.length!==5;
+}
+
+function addTeam(id){if(team.length<5&&!team.includes(id)){team.push(id);renderBuild()}}
+function removeTeam(id){team=team.filter(x=>x!==id);renderBuild()}
+function up(i){if(i>0){[team[i-1],team[i]]=[team[i],team[i-1]];renderBuild()}}
+function down(i){if(i<team.length-1){[team[i+1],team[i]]=[team[i],team[i+1]];renderBuild()}}
+function randomTeam(){team=[...chars].sort(()=>Math.random()-.5).slice(0,5).map(x=>x.id);renderBuild()}
+function goTitle(){show("titleScreen");renderChi()}
+function goBuild(){show("buildScreen");renderBuild()}
+
+function clone(x,side){return {...JSON.parse(JSON.stringify(x)),side,maxHp:x.hp,cur:x.hp,alive:true,kills:0,dmg:0}}
+function enemyTeam(){return [...chars].filter(x=>!team.includes(x.id)).sort(()=>Math.random()-.5).slice(0,5).map(x=>clone(x,"enemy"))}
+function alive(arr){return arr.filter(x=>x.alive).length}
+function nextAlive(arr){return arr.findIndex(x=>x.alive)}
+function rate(a,d){
+ if(strong[a]?.includes(d))return 1.2;
+ if(strong[d]?.includes(a))return .85;
+ return 1;
+}
+function dmg(a,d){
+ const r=rate(a.attr,d.attr);
+ const base=Math.max(8,a.atk-d.def*.42);
+ const rand=.9+Math.random()*.2;
+ return {v:Math.round(base*r*rand),r};
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+function setHp(prefix,f){
+ const pct=Math.max(0,f.cur/f.maxHp*100);
+ $(prefix+"Hp").style.width=pct+"%";
+ $(prefix+"Hp").className="hpFill "+(pct<30?"low":pct<60?"mid":"");
+ $(prefix+"HpText").textContent=`HP ${Math.max(0,f.cur)} / ${f.maxHp}`;
+}
+function renderFight(){
+ const p=battle.p[battle.pi], e=battle.e[battle.ei];
+ $("roundText").textContent=`MATCH ${battle.round}`;
+ $("aliveText").textContent=`残り ${alive(battle.p)} / ${alive(battle.e)}`;
+ $("pName").textContent=p?p.name:"全滅"; $("eName").textContent=e?e.name:"全滅";
+ $("pMeta").textContent=p?`${attrName(p.attr)} / ${p.role}`:"";
+ $("eMeta").textContent=e?`${attrName(e.attr)} / ${e.role}`:"";
+ $("pImg").src=p?p.img:""; $("eImg").src=e?e.img:"";
+ $("pImg").className=`fighterImg tint-${p?p.attr:"normal"}`;
+ $("eImg").className=`fighterImg tint-${e?e.attr:"normal"}`;
+ imgFallback($("pImg")); imgFallback($("eImg"));
+ if(p)setHp("p",p); if(e)setHp("e",e);
+}
+
+async function introEnemy(){
+ const enemyChi=chiGirls[Math.floor(Math.random()*chiGirls.length)];
+ $("introImg").src=enemyChi.stand;
+ imgFallback($("introImg"));
+ $("introText").textContent=`対戦相手の ${enemyChi.name} が\nしょうぶを しかけてきた！`;
+ $("intro").hidden=false;
+ await new Promise(r=>introResolve=r);
+}
+function hideIntro(){ $("intro").hidden=true; if(introResolve)introResolve(); }
+
+async function duel(p,e){
+ while(p.alive&&e.alive){
+  const first=(p.spd+Math.random()*6>=e.spd+Math.random()*6)?p:e;
+  const second=first===p?e:p;
+  for(const [a,d] of [[first,second],[second,first]]){
+   if(!a.alive||!d.alive)continue;
+   const x=dmg(a,d);
+   d.cur-=x.v; a.dmg+=x.v;
+   $("ticker").textContent=`${a.name}の攻撃！\n${d.name}に${x.v}ダメージ。${x.r>1?"\n有利！":x.r<1?"\n不利！":""}`;
+   renderFight();
+   await wait(520);
+   if(d.cur<=0){
+    d.cur=0; d.alive=false; a.kills++;
+    $("ticker").textContent=`${d.name}はたおれた。`;
+    renderFight();
+    await wait(520);
+   }
+  }
+ }
+}
+
+async function startBattle(){
+ if(team.length!==5)return;
+ battle={p:team.map(id=>clone(ch(id),"player")),e:enemyTeam(),pi:0,ei:0,round:0};
+ show("battleScreen"); $("resultBox").hidden=true;
+ await introEnemy();
+ while(alive(battle.p)>0&&alive(battle.e)>0){
+  battle.pi=nextAlive(battle.p); battle.ei=nextAlive(battle.e); battle.round++;
+  renderFight();
+  $("ticker").textContent="対戦開始。";
+  await wait(350);
+  await duel(battle.p[battle.pi],battle.e[battle.ei]);
+ }
+ const win=alive(battle.p)>0;
+ $("resultTitle").textContent=win?"WIN":"LOSE";
+ $("resultSub").textContent=win?`${chi().name}「いい勝ち方だったね」`:`${chi().name}「大丈夫。次いこ」`;
+ $("resultBox").hidden=false;
+}
+
+renderChi();
+goTitle();
+</script>
+</body>
+</html>
